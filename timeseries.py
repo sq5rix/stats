@@ -48,12 +48,12 @@ def decompose(timeseries):
     seasonal = decomposition.seasonal
     residual = decomposition.resid
 
-    plt.plot(ts_log, label='Original')
-    plt.plot(trend, label='Trend')
-    plt.plot(seasonal,label='Seasonality')
-    plt.plot(residual, label='Residuals')
-    plt.legend()
+    plt.plot(timeseries, color = 'blue', label='Original')
+    plt.plot(trend, color = 'red', label='Trend')
+    plt.plot(seasonal, color = 'green', label='Seasonality')
+    plt.plot(residual, color = 'orange', label='Residuals')
     plt.tight_layout()
+    plt.legend()
     plt.show()
 
 
