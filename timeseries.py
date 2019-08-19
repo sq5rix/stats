@@ -1,9 +1,11 @@
 import pandas as pd
+import matplotlib.pyplot as plt
+
 from statsmodels.tsa.stattools import adfuller
 from statsmodels.tsa.stattools import kpss
 from statsmodels.tsa.seasonal import seasonal_decompose
 from statsmodels.tsa.stattools import acf, pacf
-import matplotlib.pyplot as plt
+from statsmodels.tsa.arima_model import ARIMA
 
 class StationarityTests:
     def __init__(self, significance=.05):
@@ -79,3 +81,25 @@ def acf(ts_log_diff):
     plt.title('Partial Autocorrelation Function')
     plt.tight_layout()
     plt.show()
+
+def ar(ts_log):
+    model = ARIMA(ts_log, order=(2, 1, 0))  
+    results_AR = model.fit(disp=-1)  
+    plt.plot(ts_log_diff)
+    plt.plot(results_AR.fittedvalues, color='red')
+    plt.title('RSS: %.4f'% sum((results_AR.fittedvalues-ts_log_diff)**2))
+    
+def ma(ts_log):
+    model = ARIMA(ts_log, order=(0, 1, 2))  
+    results_MA = model.fit(disp=-1)  
+    plt.plot(ts_log_diff)
+    plt.plot(results_MA.fittedvalues, color='red')
+    plt.title('RSS: %.4f'% sum((results_MA.fittedvalues-ts_log_diff)**2))
+
+def arima(ts_log):
+    model = ARIMA(ts_log, order=(2, 1, 2))
+    results_ARIMA = model.fit(disp=-1)
+    plt.plot(ts_log_diff)
+    plt.plot(results_ARIMA.fittedvalues, color='red')
+    plt.title('RSS: %.4f'% sum((results_ARIMA.fittedvalues-ts_log_diff)**2))
+    
