@@ -2,6 +2,7 @@ import pandas as pd
 from statsmodels.tsa.stattools import adfuller
 from statsmodels.tsa.stattools import kpss
 from statsmodels.tsa.seasonal import seasonal_decompose
+from statsmodels.tsa.stattools import acf, pacf
 import matplotlib.pyplot as plt
 
 class StationarityTests:
@@ -56,4 +57,25 @@ def decompose(timeseries):
     plt.legend()
     plt.show()
 
+def acf(ts_log_diff):
+    #ACF and PACF plots:
+    lag_acf = acf(ts_log_diff, nlags=20)
+    lag_pacf = pacf(ts_log_diff, nlags=20, method='ols')
 
+    #Plot ACF:
+    plt.plot(lag_acf)
+    plt.axhline(y=0,linestyle='--',color='gray')
+    plt.axhline(y=-1.96/np.sqrt(len(ts_log_diff)),linestyle='--',color='gray')
+    plt.axhline(y=1.96/np.sqrt(len(ts_log_diff)),linestyle='--',color='gray')
+    plt.title('Autocorrelation Function')
+    plt.show()
+
+    #Plot PACF:
+    plt.subplot(122)
+    plt.plot(lag_pacf)
+    plt.axhline(y=0,linestyle='--',color='gray')
+    plt.axhline(y=-1.96/np.sqrt(len(ts_log_diff)),linestyle='--',color='gray')
+    plt.axhline(y=1.96/np.sqrt(len(ts_log_diff)),linestyle='--',color='gray')
+    plt.title('Partial Autocorrelation Function')
+    plt.tight_layout()
+    plt.show()
