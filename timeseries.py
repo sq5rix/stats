@@ -125,14 +125,30 @@ def arima(ts_log, order=(2, 1, 2)):
             AR parameters, 
             differences,
             MA parameters to use.
-            
+    
     Returns results
+        
+    Example:
+    
+    result = timeseries.arima(values, (5,1,0))
+    This sets the lag value to 5 for autoregression, 
+    uses a difference order of 1 to make the time series stationary, 
+    and uses a moving average model of 0.
+            
     '''
     model = ARIMA(ts_log, order)
     results_ARIMA = model.fit(disp=-1)
+    
     plt.plot(ts_log)
     plt.plot(results_ARIMA.fittedvalues, color='red')
-    plt.title('RSS: %.4f'% sum((results_ARIMA.fittedvalues-ts_log)**2))
+#     plt.title('RSS: %.4f'% sum((results_ARIMA.fittedvalues-ts_log)**2))
+    
+    residuals = pd.DataFrame(results_ARIMA.resid)
+    residuals.plot()
+    plt.show()
+    residuals.plot(kind='kde')
+    plt.show()
+    print(residuals.describe())
     return results_ARIMA
     
 
