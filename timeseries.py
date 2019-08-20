@@ -42,7 +42,7 @@ def kpss_test(timeseries):
     kpsstest = kpss(timeseries, regression='c')
     kpss_output = pd.Series(kpsstest[0:3], index=['Test Statistic','p-value','Lags Used'])
     for key,value in kpsstest[3].items():
-    kpss_output['Critical Value (%s)'%key] = value
+        kpss_output['Critical Value (%s)'%key] = value
     print (kpss_output)
 
 
