@@ -92,9 +92,9 @@ def ar(ts_log):
     '''
     model = ARIMA(ts_log, order=(2, 1, 0))  
     results_AR = model.fit(disp=-1)  
-    plt.plot(ts_log_diff)
+    plt.plot(ts_log)
     plt.plot(results_AR.fittedvalues, color='red')
-    plt.title('RSS: %.4f'% sum((results_AR.fittedvalues-ts_log_diff)**2))
+    plt.title('RSS: %.4f'% sum((results_AR.fittedvalues-ts_log)**2))
     results_AR
     
 def ma(ts_log):
@@ -107,26 +107,32 @@ def ma(ts_log):
     '''
     model = ARIMA(ts_log, order=(0, 1, 2))  
     results_MA = model.fit(disp=-1)  
-    plt.plot(ts_log_diff)
+    plt.plot(ts_log)
     plt.plot(results_MA.fittedvalues, color='red')
-    plt.title('RSS: %.4f'% sum((results_MA.fittedvalues-ts_log_diff)**2))
+    plt.title('RSS: %.4f'% sum((results_MA.fittedvalues-ts_log)**2))
     results_MA
 
-def arima(ts_log):
+def arima(ts_log, order=(2, 1, 2)):
     '''
     ARIMA is an acronym that stands for AutoRegressive Integrated Moving Average. 
     It is a generalization of the simpler AutoRegressive Moving Average
     Adds the notion of integration. 
     
     Plots fitted function
-    Takes timeseries argument
+    Args:
+        timeseries 
+        The (p,d,q) order of the model for the number of:
+            AR parameters, 
+            differences,
+            MA parameters to use.
+            
     Returns results
     '''
-    model = ARIMA(ts_log, order=(2, 1, 2))
+    model = ARIMA(ts_log, order)
     results_ARIMA = model.fit(disp=-1)
-    plt.plot(ts_log_diff)
+    plt.plot(ts_log)
     plt.plot(results_ARIMA.fittedvalues, color='red')
-    plt.title('RSS: %.4f'% sum((results_ARIMA.fittedvalues-ts_log_diff)**2))
+    plt.title('RSS: %.4f'% sum((results_ARIMA.fittedvalues-ts_log)**2))
     return results_ARIMA
     
 
