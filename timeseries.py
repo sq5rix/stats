@@ -1,3 +1,7 @@
+'''Timeseries module gathers a few standard statistical functions 
+to facilitate Time Series ops
+'''
+
 import pandas as pd
 import matplotlib.pyplot as plt
 
@@ -9,35 +13,19 @@ from statsmodels.tsa.arima_model import ARIMA
 from statsmodels.tsa.stattools import grangercausalitytests
 from statsmodels.tsa.vector_ar.vecm import coint_johansen
 
-class StationarityTests:
-    def __init__(self, significance=.05):
-        self.SignificanceLevel = significance
-        self.pValue = None
-        self.isStationary = None
 
-    def ADF_Stationarity_Test(self, timeseries, printResults = True):
-
-        #Dickey-Fuller test:
-        adfTest = adfuller(timeseries, autolag='AIC')
-        
-        self.pValue = adfTest[1]
-        
-        if (self.pValue<self.SignificanceLevel):
-            self.isStationary = True
-        else:
-            self.isStationary = False
-        
-        if printResults:
-            dfResults = pd.Series(adfTest[0:4], index=['ADF Test Statistic','P-Value','# Lags Used','# Observations Used'])
-            #Add Critical Values
-            for key,value in adfTest[4].items():
-                dfResults['Critical Value (%s)'%key] = value
-
-            print('Augmented Dickey-Fuller Test Results:')
-            print(dfResults)
-
-#define KPSS
 def kpss_test(timeseries):
+    '''
+    Kwiatkowski–Phillips–Schmidt–Shin (KPSS) tests are used for testing a null hypothesis,
+    that an observable time series is stationary around a deterministic trend
+    (i.e. trend-stationary) against the alternative of a unit root. 
+    
+    Args: 
+        timeseries - array of values
+        
+    returns nothing
+    
+    '''
     print ('Results of KPSS Test:')
     kpsstest = kpss(timeseries, regression='c')
     kpss_output = pd.Series(kpsstest[0:3], index=['Test Statistic','p-value','Lags Used'])
@@ -47,7 +35,11 @@ def kpss_test(timeseries):
 
 
 def decompose(timeseries):
-
+    ''' 
+    Classical decompose function to render timeseries stationary 
+    Plots decomposition, trend, seasonal, residual
+    Returns: decomposition, trend, seasonal, residual timeseries
+    '''
     decomposition = seasonal_decompose(timeseries)
     trend = decomposition.trend
     seasonal = decomposition.seasonal
@@ -60,8 +52,14 @@ def decompose(timeseries):
     plt.tight_layout()
     plt.legend()
     plt.show()
+    return decomposition, trend, seasonal, residual
 
 def acf(ts_log_diff):
+    '''
+    Function acf computes and plots estimates of the autocovariance or autocorrelation function. 
+    Function pacf is the function used for the partial autocorrelations. 
+    Function ccf computes the cross-correlation or cross-covariance of two univariate series.
+    '''
     #ACF and PACF plots:
     lag_acf = acf(ts_log_diff, nlags=20)
     lag_pacf = pacf(ts_log_diff, nlags=20, method='ols')
@@ -85,31 +83,58 @@ def acf(ts_log_diff):
     plt.show()
 
 def ar(ts_log):
+    '''
+    AR is an acronym that stands for AutoRegressive  
+    
+    Plots fitted function
+    Takes timeseries argument
+    Returns results
+    '''
     model = ARIMA(ts_log, order=(2, 1, 0))  
     results_AR = model.fit(disp=-1)  
     plt.plot(ts_log_diff)
     plt.plot(results_AR.fittedvalues, color='red')
     plt.title('RSS: %.4f'% sum((results_AR.fittedvalues-ts_log_diff)**2))
+    results_AR
     
 def ma(ts_log):
+    '''
+    MA is an acronym that stands for Moving Average. 
+    
+    Plots fitted function
+    Takes timeseries argument
+    Returns results
+    '''
     model = ARIMA(ts_log, order=(0, 1, 2))  
     results_MA = model.fit(disp=-1)  
     plt.plot(ts_log_diff)
     plt.plot(results_MA.fittedvalues, color='red')
     plt.title('RSS: %.4f'% sum((results_MA.fittedvalues-ts_log_diff)**2))
+    results_MA
 
 def arima(ts_log):
+    '''
+    ARIMA is an acronym that stands for AutoRegressive Integrated Moving Average. 
+    It is a generalization of the simpler AutoRegressive Moving Average
+    Adds the notion of integration. 
+    
+    Plots fitted function
+    Takes timeseries argument
+    Returns results
+    '''
     model = ARIMA(ts_log, order=(2, 1, 2))
     results_ARIMA = model.fit(disp=-1)
     plt.plot(ts_log_diff)
     plt.plot(results_ARIMA.fittedvalues, color='red')
     plt.title('RSS: %.4f'% sum((results_ARIMA.fittedvalues-ts_log_diff)**2))
+    return results_ARIMA
     
 
 maxlag=12
 test = 'ssr_chi2test'
 def grangers_causation_matrix(data, variables, test='ssr_chi2test', verbose=False):    
-    """Check Granger Causality of all possible combinations of the Time series.
+    """
+    Check Granger Causality of all possible combinations of the Time series.
     The rows are the response variable, columns are predictors. The values in the table 
     are the P-Values. P-Values lesser than the significance level (0.05), implies 
     the Null Hypothesis that the coefficients of the corresponding past values is 
@@ -135,7 +160,9 @@ def grangers_causation_matrix(data, variables, test='ssr_chi2test', verbose=Fals
 
 
 def cointegration_test(df, alpha=0.05):
-    """Perform Johanson's Cointegration Test and Report Summary"""
+    """
+    Perform Johanson's Cointegration Test and Report Summary
+    """
     out = coint_johansen(df,-1,5)
     d = {'0.90':0, '0.95':1, '0.99':2}
     traces = out.lr1
@@ -151,7 +178,9 @@ def cointegration_test(df, alpha=0.05):
 
 # alternative ADCF test with result printouts
 def adfuller_test(series, signif=0.05, name='', verbose=False):
-    """Perform ADFuller to test for Stationarity of given series and print report"""
+    """
+    Perform ADFuller to test for Stationarity of given series and print report
+    """
     r = adfuller(series, autolag='AIC')
     output = {'test_statistic':round(r[0], 4), 'pvalue':round(r[1], 4), 'n_lags':round(r[2], 4), 'n_obs':r[3]}
     p_value = output['pvalue']
